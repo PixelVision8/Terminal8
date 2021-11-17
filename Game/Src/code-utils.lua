@@ -45,3 +45,60 @@ function dump(o)
     return tostring(o)
   end
 end
+
+function AutoComplete(text, options)
+
+  local matches = {}
+
+  -- TODO should we always default to an option?
+  if(text == "") then
+    return matches
+  end
+
+  for k, v in pairs(options) do
+    
+    if(string.find(v, text, 1, true) == 1) then
+      table.insert(matches, v)
+    end
+
+  end
+
+  return matches
+
+end
+
+-- print(string.replaceTokens("Hello {name}!", {name = "Worlds"}))
+function string.replaceTokens(text, data)
+  
+  local tokens = {}
+  local token = ""
+  local inToken = false
+  local tokenIndex = 0
+
+  for i = 1, #text do
+      local char = string.sub(text, i, i)
+
+      if char == "{" then
+          inToken = true
+      elseif char == "}" then
+          inToken = false
+          tokenIndex = tokenIndex + 1
+          tokens[tokenIndex] = token
+          token = ""
+      elseif inToken then
+          token = token .. char
+      end
+  end
+
+  for i = 1, #tokens do
+      local token = tokens[i]
+      local value = data[token]
+
+      if value ~= nil then
+          text = string.gsub(text, "{" .. token .. "}", value)
+      end
+  end
+
+  return text
+
+end

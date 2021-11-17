@@ -10,37 +10,37 @@
   Learn more about making Pixel Vision 8 games at https://www.gitbook.com/@pixelvision8
 ]]--
 
+-- This returns a table representing the stat of the input field.
 function CreateInputField(rect)
 
-  local data = {}
-
-  data.text = ""
-  data.maxChars = math.floor(rect.w / 8)
-  -- data.cursorCol = 0
-  data.blinkTime = 0
-  data.blinkDelay = .4
-  data.blink = false
-  data.blinkChar = "_"
-  data.inputTime = 0
-  data.inputDelay = .1
-  data.editing = true
-  data.rect = rect
-  data.spriteSize = {x = 8, y = 8}
-  data.actions = {}
+  local data = {
+    text = "",
+    suggestedTest = "",
+    maxChars = math.floor(rect.w / 8),
+    blinkTime = 0,
+    blinkDelay = 400,
+    blink = false,
+    blinkChar = "_",
+    inputTime = 0,
+    inputDelay = 100,
+    editing = true,
+    rect = rect,
+    spriteSize = {x = 8, y = 8},
+    actions = {}
+  }
 
   return data
 
 end
 
-
+-- Updates the input field and saves the state changes back to the data table.
 function UpdateInputField(data, timeDelta)
 
   -- Save the timeDelta on the input field
-  data.timeDelta = timeDelta / 1000
+  data.timeDelta = timeDelta
 
   if(data.editing == true) then
-    -- self:InputAreaKeyCapture(data)
-
+    
     -- if we are in edit mode, we need to update the cursor blink time
     data.blinkTime = data.blinkTime + data.timeDelta
 
@@ -48,16 +48,11 @@ function UpdateInputField(data, timeDelta)
       data.blinkTime = 0
       data.blink = not data.blink
     end
-
-    -- Capture the text input from the last frame
-    -- local lastInput = InputString()
-    --
-    -- if(lastInput ~= "") then
-
+    
+    -- Capture the user input
     CaptureInput(data)
 
-    -- end
-
+    -- Capture any key inputs
     KeyCapture(data)
 
   end
@@ -68,8 +63,6 @@ function UpdateInputField(data, timeDelta)
 end
 
 function DrawInputField(data)
-
-  -- TODO need to add some kind of invalidation so we are not redrawing text constantly
 
   if(data.blink == true and data.editing == true) then
 
@@ -82,14 +75,33 @@ function DrawInputField(data)
   end
 
   if(data.invalid) then
+ 
+    -- Look for matches for the auto complete
+    local matches = AutoComplete(data.text, gameState.autoComplete)
+
+    -- Find the first suggestion
+    data.suggestedTest = #matches == 0 and data.text or matches[1]
+
+    -- Create an array for color offsets
+    local colorOffsets = {}
+
+    -- Loop through each character in the text
+    for i = 1, #data.suggestedTest do
+
+      -- Get the color offset for the character
+      table.insert(colorOffsets, i <= #data.text and 15 or 5)
+
+    end
 
     -- Clear the line
     DrawRect(data.rect.x, data.rect.y, data.rect.w, 8, 0, DrawMode.TilemapCache)
 
     -- Draw the text to the display
-    DrawText(data.text, data.rect.x, data.rect.y, DrawMode.TilemapCache, "large", 15)
+    DrawColoredText(data.suggestedTest, data.rect.x, data.rect.y, DrawMode.TilemapCache, "large", colorOffsets)
 
+    -- Reset the validation
     data.invalid = false
+
   end
 
 end
@@ -108,6 +120,12 @@ function KeyCapture(data)
 
       data.invalid = true
 
+    elseif(Key(Keys.Tab) and #data.suggestedTest > #data.text) then
+
+      data.text = data.suggestedTest
+
+      data.invalid = true
+
     elseif(Key(Keys.Enter)) then
 
       SubmitText(data)
@@ -117,6 +135,7 @@ function KeyCapture(data)
   end
 
 end
+
 
 function CaptureInput(data)
 
@@ -143,7 +162,6 @@ function CaptureInput(data)
         end
 
       end
-
 
     end
 

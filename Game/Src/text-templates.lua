@@ -41,10 +41,10 @@ local textTemplates ={
         saved = "saved "
     },
     directions = {
-        north = "north",
-        south = "south",
-        east = "east",
-        west = "west"
+        "north",
+        "east",
+        "south",
+        "west"
     },
     terminalMessages = {
         "This is the text for terminal 1.",
@@ -86,11 +86,21 @@ local textTemplates ={
     },
     specialMessages = {
         visited = "It looks like you've been in this room before. ",
-        terminal = " On the wall is a terminal.",
+        terminal = "On the wall is a terminal.",
         firstTerminal = "This is the first terminal in the game.",
         lastRoom = "You can finish the game in this room.",
-        door = " There is a door to the ",
+        door = "There is a door to the ${direction}",
         roomTitle = "ROOM #${roomId} (${roomX},${roomY})"
+    },
+    actionMessages = {
+        go = "go {direction}",
+        lookDir = "look {direction}",
+        take = "take {item}",
+        use = "use {item}",
+        start = "start",
+        help = "help",
+        openMap = "open map",
+        closeMap = "close map",
     }
 }
 

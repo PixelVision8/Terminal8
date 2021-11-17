@@ -20,6 +20,7 @@ LoadScript("code-message-bar")
 LoadScript("code-inventory")
 LoadScript("code-combat")
 
+
 -- This this is an empty game, we will the following text. We combined two sets of fonts into
 -- the default.font.png. Use uppercase for larger characters and lowercase for a smaller one.
 local message = textTemplates.intro
@@ -29,8 +30,8 @@ local inputField = nil
 local textDisplay = nil
 
 -- This is the default game state. It is empty at start with gameActive set to false
-local gameState = {
-  gameActive = false
+gameState = {
+  gameActive = false,
 }
 
 -- The Init() method is part of the game's lifecycle and called a game starts. We are going to
@@ -39,6 +40,8 @@ function Init()
 
   -- Here we are manually changing the background color
   BackgroundColor(0)
+
+  
 
   inputField = CreateInputField({x = 8, y = 224, w = 240})
 
@@ -163,6 +166,8 @@ function FirstScreen()
   -- Draw text to the display
   DisplayText(textDisplay, message)
 
+  RebuildAutoCompleteList()
+
 end
 
 function ClearDisplay()
@@ -175,6 +180,8 @@ function ShowMap()
 
   -- Clear the display
   ClearDisplay()
+
+  RebuildAutoCompleteList()
 
   local mapString = textTemplates.mapKey.title
   local rooms = gameState.map.roomIndex
@@ -244,9 +251,6 @@ function Open(options)
       return
     end
 
-    -- TODO need to test if the room has anything to open
-
-
   end
   -- TODO return error
   DisplayMessage(textTemplates.actionErrors.cantOpen)
@@ -285,6 +289,7 @@ end
 
 function ShowTerminal()
 
+  -- TODO remove the lock on the terminal
   gameState.terminalOpen = true
 
   gameState.DisplayText(gameState.currentRoom.terminal)
@@ -298,7 +303,7 @@ function Start()
   end
 
   -- Create game state
-  gameState = {}
+  -- gameState = {}
   gameState.gameActive = true
   -- Configure game
   gameState.map = nil
@@ -336,7 +341,6 @@ function Start()
 
   end
 
-
   -- Enter the first room
   EnterRoom(gameState.map.firstRoom)
 
@@ -351,12 +355,86 @@ function EnterRoom(room)
 
   gameState.currentRoom = room
 
+  -- print("Room", dump(gameState.currentRoom))
+
   -- Display room title and message
   local message = gameState.currentRoom.title .. "\n\n\n" ..
   GetMessage(gameState.currentRoom)
 
   -- Draw text to the display and clear the previous text
   DisplayText(textDisplay, message, true)
+
+  
+  RebuildAutoCompleteList()
+
+  
+end
+
+function RebuildAutoCompleteList()
+  
+  -- Help is always available
+  gameState.autoComplete = {textTemplates.actionMessages.help}
+
+  -- Look to see if the game has started
+  if(gameState.gameActive == false) then
+    
+    table.insert(gameState.autoComplete, textTemplates.actionMessages.start)
+    
+  end
+  
+  
+
+  if(gameState.mapOpen == true) then
+
+    -- Add the map to the auto complete list
+    table.insert(gameState.autoComplete, textTemplates.actionMessages.closeMap)
+  
+  else
+
+    -- using the inventory can only happen in a room
+    if(gameState.inventory ~= nil and #gameState.inventory >0) then
+      -- add the use item to the auto complete list
+      table.insert(gameState.autoComplete, string.replaceTokens(textTemplates.actionMessages.use, {item = gameState.inventory[1].name}))
+    end
+    
+    -- Add the map to the auto complete list
+    table.insert(gameState.autoComplete, textTemplates.actionMessages.openMap)
+  
+     -- Add look around to the auto complete list
+     table.insert(gameState.autoComplete, string.replaceTokens(textTemplates.actionMessages.lookDir, {direction = "around"}))
+
+     if(gameState.currentRoom ~= nil) then
+     
+      -- Add directions
+      for i = 1, #textTemplates.directions do
+        
+        local dir = textTemplates.directions[i]
+
+        if(gameState.currentRoom[dir] ~= nil) then
+          
+          -- add the go direction to the auto complete list
+          table.insert(gameState.autoComplete, string.replaceTokens(textTemplates.actionMessages.go, {direction = dir}))
+
+          -- add the look direction to the auto complete list
+          table.insert(gameState.autoComplete, string.replaceTokens(textTemplates.actionMessages.lookDir, {direction = dir}))
+        end
+
+      end
+
+      if(gameState.currentRoom.item ~= nil) then
+        -- add the take item to the auto complete list
+        table.insert(gameState.autoComplete, string.replaceTokens(textTemplates.actionMessages.take, {item = gameState.currentRoom.item.name}))
+      end
+
+    end
+    -- Items of interest
+    -- print("state.currentRoom.itemsOfInterest", dump(room.itemsOfInterest))
+
+    -- TODO if there is a terminal, add "use terminal"
+
+  
+  end
+
 
 end
 
@@ -365,10 +443,10 @@ function Go(options)
   if(gameState.gameActive == true and gameState.mapOpen == false) then
 
     local validDirections = {
-      textTemplates.directions.north, 
-      textTemplates.directions.east, 
-      textTemplates.directions.south, 
-      textTemplates.directions.west
+      textTemplates.directions[1], -- North 
+      textTemplates.directions[2], -- East 
+      textTemplates.directions[3], -- South 
+      textTemplates.directions[4], -- West
     }
 
     local direction = options[1]
@@ -402,7 +480,7 @@ end
 
 function Look(options, state)
 
-  if(options[1] == "at") then
+  if(options[1] == "at") then -- TODO this should be in the textTemplate
 
     if(state.currentRoom.itemsOfInterest ~= nil and #options > 1) then
       for i = 1, #state.currentRoom.itemsOfInterest do
@@ -413,7 +491,7 @@ function Look(options, state)
       end
     end
 
-  elseif(options[1] == "around") then
+  elseif(options[1] == "around") then -- TODO this should be in the textTemplate
 
     -- TODO should tell the player about items and itemsOfInterest
 
