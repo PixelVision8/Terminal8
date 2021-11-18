@@ -74,7 +74,7 @@ jobs:
 
       - name: Build
         run: |
-          sed -i 's/0.0.0/${{env.CURRENT}}/g' Content/bios.json
+          sed -i 's/0.0.0/${{env.CURRENT}}/g' App/Content/bios.json
           sed -i 's/0.0.0/${{env.CURRENT}}/g' App/MyGame.DesktopRunner.csproj
           npm install
           npm install gulp -g
