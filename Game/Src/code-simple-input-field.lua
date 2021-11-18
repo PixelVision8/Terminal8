@@ -69,7 +69,7 @@ function DrawInputField(data)
     local tmpX = data.rect.x + (#data.text * data.spriteSize.x)
 
     if(tmpX < data.rect.w) then
-      DrawText(data.blinkChar, tmpX, data.rect.y, DrawMode.Sprite, "large", 15)
+      DrawText(data.blinkChar, tmpX, data.rect.y, DrawMode.Sprite, "terminal", 46)
     end
 
   end
@@ -110,7 +110,7 @@ function DrawInputField(data)
     local text, colorOffsets = colorizeText(data.suggestedTest, 6)
 
     -- Draw the text to the display
-    DrawColoredText(text, data.rect.x, data.rect.y, DrawMode.TilemapCache, "large", colorOffsets)
+    DrawColoredText(text, data.rect.x, data.rect.y, DrawMode.TilemapCache, "terminal", colorOffsets)
 
   end
 

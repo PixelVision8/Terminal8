@@ -20,7 +20,6 @@ LoadScript("code-message-bar")
 LoadScript("code-inventory")
 LoadScript("code-combat")
 
-
 -- This this is an empty game, we will the following text. We combined two sets of fonts into
 -- the default.font.png. Use uppercase for larger characters and lowercase for a smaller one.
 local message = textTemplates.intro
@@ -40,8 +39,6 @@ function Init()
 
   -- Here we are manually changing the background color
   BackgroundColor(0)
-
-  
 
   inputField = CreateInputField({x = 8, y = 224, w = 240})
 

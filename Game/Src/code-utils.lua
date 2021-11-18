@@ -72,6 +72,8 @@ function string.replaceTokens(text, data)
 
 end
 
+TOTAL_COLORS = 15
+
 function colorizeText(text, defaultColor, tokens)
 
   -- local tokens = {}
@@ -84,8 +86,10 @@ function colorizeText(text, defaultColor, tokens)
 
   local colorString = ""
 
-  for i = 1, #text do
+  local defaultColor = ((defaultColor or 15) * 2) + TOTAL_COLORS + 1
 
+  for i = 1, #text do
+    
     local char = string.sub(text, i, i)
 
     -- Look to see if we are at the start of a token
@@ -103,13 +107,13 @@ function colorizeText(text, defaultColor, tokens)
       elseif(colorString == "") then
         
         -- This is a special case to take into account for a token in the text or just come characters wrapped in open and closed brakes
-        colorString = tostring(defaultColor)
+        colorString = tostring(15)
         token = "{" .. token .. "}"
 
       end
 
       -- Time to apply the color so convert the color string into a number  
-      local color = tonumber(colorString)
+      local color = ((tonumber(colorString) or 0) * 2) + TOTAL_COLORS + 1
 
       -- Add the token to the text
       newText = newText .. token

@@ -1,0 +1,11 @@
+{
+  "ColorChip":
+  {
+    "total": 32,
+    "maxColors": 128,
+    "backgroundColor": 0,
+    "maskColor": "#FF00FF",
+    "unique": false,
+    "debug": false
+  }
+}

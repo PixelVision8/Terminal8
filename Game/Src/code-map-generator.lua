@@ -56,6 +56,26 @@ function ClearMap(data)
   end
 end
 
+local bitFlagTable =
+{
+  "0000",
+  "0001",
+  "0010",
+  "0011",
+  "0100",
+  "0101",
+  "0110",
+  "0111",
+  "1000",
+  "1001",
+  "1010",
+  "1011",
+  "1100",
+  "1101",
+  "1110",
+  "1111"
+}
+
 function GenerateMap(data)
   -- ClearMap(data)
 
@@ -80,10 +100,12 @@ function GenerateMap(data)
       local c = i-1
       local r = j-1
 
-      print("tile", c, r, calId(c, r, data.width), dump(data.maze[i][j]))
+      local tile = data.maze[i][j]
+      local sides = tostring(tile.down) .. tostring(tile.right) .. tostring(tile.left) .. tostring(tile.up)
+
+      print("tile", c, r, calId(c, r, data.width), sides, table.indexOf(bitFlagTable, sides), dump(tile))
 
     end
-
     
   end
 

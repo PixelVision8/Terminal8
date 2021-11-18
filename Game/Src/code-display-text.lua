@@ -27,7 +27,7 @@ function CreateTextDisplay(rect)
   data.textTime = 0
   data.currentChar = 0
   data.totalChars = 0
-  data.nextY = rect.y
+  data.nextY = rect.y/8
   data.drawText = false
   data.paused = false
 
@@ -90,13 +90,18 @@ function DrawTextDisplay(data)
 end
 
 function DrawNextLine(data)
-  local line = data.lines[data.currentLine]
-  local colorOffset = data.colorOffsets[data.currentLine]
-  -- print("offsets", dump(data.colorOffsets))
   
+  -- We need a reference ot the current line we are on
+  local line = data.lines[data.currentLine]
+  
+  -- Ge the current character to draw
   local char = line:sub(data.currentChar, data.currentChar)
 
-  DrawText(char, data.currentChar * 8, data.nextY, DrawMode.TilemapCache, "large", colorOffset[data.currentChar])
+  -- Get the color offset for the current character and default it to 0 if the value is nil which happens when there is a space
+  local colorOffset = data.colorOffsets[data.currentLine][data.currentChar] or 0
+
+  -- Draw the character to the tilemap
+  DrawText(char, data.currentChar, data.nextY, DrawMode.Tile, "terminal", colorOffset)
 
   data.currentChar = data.currentChar + 1
 
@@ -108,7 +113,7 @@ function DrawNextLine(data)
       data.drawText = false
     end
 
-    data.nextY = data.nextY + 8
+    data.nextY = data.nextY + 1
 
     if(data.drawText == true and data.nextY > (data.rect.y + (data.rect.h - 16))) then
 
@@ -116,7 +121,7 @@ function DrawNextLine(data)
 
         data.paused = true
 
-        DrawText("...", data.rect.x, data.nextY, DrawMode.TilemapCache, "large", 15)
+        DrawText("...", data.rect.x, data.nextY, DrawMode.TilemapCache, "terminal", 15)
 
         -- reset some of the text display's values
         data.nextY = data.rect.y
@@ -159,7 +164,7 @@ function DisplayText(data, text, clear)
   -- Get the lines
   local newLines = SplitLines(wrap)
 
-  print("lines", dump(newLines))
+  -- print("lines", dump(newLines))
 
   local offset = 0
 
