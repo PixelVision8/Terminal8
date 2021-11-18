@@ -1,5 +1,5 @@
 local textTemplates ={
-    intro = ">TERMINAL\n\n\nTerminal is the empty shell of a text adventure game I am going to try to build in 48 hours, maybe 72 if I run into problems completing the compo.\n\n\nVisit 'pixelvision8.com' to learn about my Fantasy Console.",
+    intro = ">{TERMINAL 8:14}\n\n\n{Terminal 8:14} is the empty shell of a text adventure game I am going to try to build in 48 hours, maybe 72 if I run into problems completing the compo.\n\n\nVisit '{pixelvision8.com:7}' to learn about my Fantasy Console.",
     actions = {
         open = "open",
         close = "close",
@@ -27,7 +27,7 @@ local textTemplates ={
         title = "   MAP           STATS\n\n",
         room = "#",
         visited = " ",
-        lastRoom = "X",
+        lastRoom = "X", 
         currentRoom = "@",
     },
     inventory = {
@@ -85,7 +85,7 @@ local textTemplates ={
         "You are in a room that has blood on the ceiling.",
     },
     specialMessages = {
-        visited = "It looks like you've been in this room before. ",
+        visited = "It looks like you've been in this room before.",
         terminal = "On the wall is a terminal.",
         firstTerminal = "This is the first terminal in the game.",
         lastRoom = "You can finish the game in this room.",

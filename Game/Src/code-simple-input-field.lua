@@ -75,32 +75,42 @@ function DrawInputField(data)
   end
 
   if(data.invalid) then
- 
+
+    -- Reset the validation
+    data.invalid = false
+
     -- Look for matches for the auto complete
     local matches = AutoComplete(data.text, gameState.autoComplete)
 
     -- Find the first suggestion
-    data.suggestedTest = #matches == 0 and data.text or matches[1]
+    data.suggestedTest = data.text
 
-    -- Create an array for color offsets
-    local colorOffsets = {}
+    -- Look to see if there is an auto complete match
+    if( #matches > 0 ) then
 
-    -- Loop through each character in the text
-    for i = 1, #data.suggestedTest do
+      local match = matches[1]
+      local suggestion = match:sub(#data.text + 1)
 
-      -- Get the color offset for the character
-      table.insert(colorOffsets, i <= #data.text and 15 or 5)
+      if(#suggestion > 0) then
+        suggestion = "{" .. suggestion .. ":5}"
+      end
+      -- Add the current text plus the rest of the first match while highlighting it.
+      data.suggestedTest = data.suggestedTest .. suggestion
 
+      if(data.suggestedTest == match) then
+        data.suggestedTest = "{" .. data.suggestedTest .. ":11}"
+      end
+      
     end
 
     -- Clear the line
     DrawRect(data.rect.x, data.rect.y, data.rect.w, 8, 0, DrawMode.TilemapCache)
 
-    -- Draw the text to the display
-    DrawColoredText(data.suggestedTest, data.rect.x, data.rect.y, DrawMode.TilemapCache, "large", colorOffsets)
+    -- Colorize the text
+    local text, colorOffsets = colorizeText(data.suggestedTest, 6)
 
-    -- Reset the validation
-    data.invalid = false
+    -- Draw the text to the display
+    DrawColoredText(text, data.rect.x, data.rect.y, DrawMode.TilemapCache, "large", colorOffsets)
 
   end
 
@@ -122,7 +132,13 @@ function KeyCapture(data)
 
     elseif(Key(Keys.Tab) and #data.suggestedTest > #data.text) then
 
-      data.text = data.suggestedTest
+      local matches = AutoComplete(data.text, gameState.autoComplete)
+
+      if(#matches > 0) then
+
+        data.text = matches[1]
+
+      end
 
       data.invalid = true
 
@@ -169,11 +185,18 @@ function CaptureInput(data)
 
 end
 
+-- function ClearInputFieldBackground()
+  
+--   DrawRect(data.rect.x, data.rect.y, data.rect.w, 8, 0, DrawMode.TilemapCache)
+
+-- end
+
 function ClearInputField(data)
 
-  DrawRect(data.rect.x, data.rect.y, data.rect.w, 8, 0, DrawMode.TilemapCache)
-
   data.text = ""
+
+  data.invalid = true
+
 end
 
 function SubmitText(data)

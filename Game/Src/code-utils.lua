@@ -10,11 +10,6 @@
   Learn more about making Pixel Vision 8 games at https://www.gitbook.com/@pixelvision8
 ]]--
 
-string.rpad = function(str, len, char)
-  if char == nil then char = ' ' end
-  return str .. string.rep(char, len - #str)
-end
-
 string.lpad = function(str, len, char)
   if char == nil then char = ' ' end
   return string.rep(char, len - #str) .. str
@@ -67,38 +62,102 @@ function AutoComplete(text, options)
 
 end
 
--- print(string.replaceTokens("Hello {name}!", {name = "Worlds"}))
 function string.replaceTokens(text, data)
   
-  local tokens = {}
+  -- pass the text and data to the `colorizeText()` function and only save the returned text since coloring is ignored.
+  local text = colorizeText(text, 0, data)
+
+  -- Return the text
+  return text
+
+end
+
+function colorizeText(text, defaultColor, tokens)
+
+  -- local tokens = {}
+  local newText = ""
+  local colors = {}
+
   local token = ""
   local inToken = false
-  local tokenIndex = 0
+  local inColor = false
+
+  local colorString = ""
 
   for i = 1, #text do
-      local char = string.sub(text, i, i)
 
-      if char == "{" then
-          inToken = true
-      elseif char == "}" then
-          inToken = false
-          tokenIndex = tokenIndex + 1
-          tokens[tokenIndex] = token
-          token = ""
-      elseif inToken then
-          token = token .. char
+    local char = string.sub(text, i, i)
+
+    -- Look to see if we are at the start of a token
+    if char == "{" then
+
+        inToken = true
+
+    -- Look to see if we are at the end of a token
+    elseif char == "}" then
+
+      if(tokens ~= nil) then
+      
+        token = tokens[token] or token
+
+      elseif(colorString == "") then
+        
+        -- This is a special case to take into account for a token in the text or just come characters wrapped in open and closed brakes
+        colorString = tostring(defaultColor)
+        token = "{" .. token .. "}"
+
       end
+
+      -- Time to apply the color so convert the color string into a number  
+      local color = tonumber(colorString)
+
+      -- Add the token to the text
+      newText = newText .. token
+
+      -- Add the color to the colors table for each character in the token
+      for j = 1, #token do
+        table.insert(colors, color)
+      end
+
+      -- Reset all of the flags since we are out of a token now
+      inToken = false
+      inColor = false
+      token = ""
+      colorString = ""
+
+    -- Look to see if we have a colon and are inside of a token
+    elseif char == ":" and inToken then
+
+      -- Flag that we are now in a color
+      inColor = true
+
+    elseif inColor then
+
+      -- Add the character to the color string
+      colorString = colorString .. char
+
+    else
+
+      -- Look to see if we are inside of a token
+      if inToken then
+
+        -- Add the character to the token
+        token = token .. char
+
+      else
+
+        -- Add the character to the newText
+        newText = newText .. char
+
+        -- Add the default color to the colors table
+        table.insert(colors, defaultColor)
+
+      end
+
+    end
+
   end
 
-  for i = 1, #tokens do
-      local token = tokens[i]
-      local value = data[token]
-
-      if value ~= nil then
-          text = string.gsub(text, "{" .. token .. "}", value)
-      end
-  end
-
-  return text
+  return newText, colors
 
 end

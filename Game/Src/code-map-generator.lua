@@ -11,6 +11,10 @@
   Learn more about making Pixel Vision 8 games at https://www.gitbook.com/@pixelvision8
 ]]--
 
+-- To make things easier to read, let's define some shorter names for the `CalculateIndex()` and `CalculatePosition()` APIs.
+local calId = CalculateIndex
+local calPos = CalculatePosition
+
 function NewMap(w, h)
 
   local data = {
@@ -29,7 +33,9 @@ function NewMap(w, h)
 
   MapToString(data)
 
-  print("Raw Map\n" ..dump(data.roomIndex))
+  -- print("Raw Map\n" ..dump(data.roomIndex))
+
+  print("Generate Map", data.mapString)
 
   return data
 
@@ -70,8 +76,19 @@ function GenerateMap(data)
         data.maze[i][j].down = 1
         data.maze[i + 1][j].up = 1
       end
+
+      local c = i-1
+      local r = j-1
+
+      print("tile", c, r, calId(c, r, data.width), dump(data.maze[i][j]))
+
     end
+
+    
   end
+
+  print("Raw map\n", dump(data.maze))
+  
 end
 
 function CleanUpMap(data)
@@ -87,25 +104,33 @@ function CleanUpMap(data)
   end
 
   for i = 0, #data.maze * 2, 1 do
-    data.mapTable[CalculateIndex(0, i, data.width) + 1] = 1
+    data.mapTable[calId(0, i, data.width) + 1] = 1
   end
 
   for j = 1, #data.maze[1] * 2, 1 do
-    data.mapTable[CalculateIndex(j, 0, data.height) + 1] = 1
+    data.mapTable[calId(j, 0, data.height) + 1] = 1
   end
 
+  local total = data.width * data.height
+  
+  print("test", #data.maze, #data.maze[1], data.height, data.width)
+
   for i = 1, #data.maze do
+    
     for j = 1, #data.maze[1] do
 
-      data.mapTable[ CalculateIndex(j * 2, i * 2, data.width) + 1] = 1
+      data.mapTable[ calId(j * 2, i * 2, data.width) + 1] = 1
 
       if data.maze[i][j].right == 0 then
-        data.mapTable[CalculateIndex(j * 2, (i * 2) - 1, data.width) + 1] = 1
+        data.mapTable[calId(j * 2, (i * 2) - 1, data.width) + 1] = 1
       end
+
       if data.maze[i][j].down == 0 then
-        data.mapTable[CalculateIndex((j * 2) - 1, i * 2, data.width) + 1] = 1
+        data.mapTable[calId((j * 2) - 1, i * 2, data.width) + 1] = 1
       end
+
     end
+
   end
 
 end
@@ -118,7 +143,7 @@ function MapToString(data)
 
     local tmpValue = data.mapTable[i]
 
-    data.mapString = data.mapString .. (tmpValue == 1 and "  " or string.lpad(tostring(i), 2, "0"))
+    data.mapString = data.mapString .. (tmpValue == 1 and "  " or string.lpad(tostring(i), 3, "0"))
 
     data.mapString = data.mapString .. " "
 
@@ -138,7 +163,7 @@ function FindRooms(data)
     local roomValue = data.mapTable[i]
     if(roomValue == 0) then
 
-      local pos = CalculatePosition(i, data.width)
+      local pos = calPos(i, data.width)
 
       local room = {
         id = i,
@@ -149,28 +174,28 @@ function FindRooms(data)
       local tmpIndex = -1
       -- Top
 
-      tmpIndex = CalculateIndex(pos.x, pos.y - 1, data.width)
+      tmpIndex = calId(pos.x, pos.y - 1, data.width)
       if(data.mapTable[tmpIndex] == 0) then
         room.north = tmpIndex
       end
 
       -- Right
 
-      tmpIndex = CalculateIndex(pos.x + 1, pos.y, data.width)
+      tmpIndex = calId(pos.x + 1, pos.y, data.width)
       if(data.mapTable[tmpIndex] == 0) then
         room.east = tmpIndex
       end
 
       -- Bottom
 
-      tmpIndex = CalculateIndex(pos.x, pos.y + 1, data.width)
+      tmpIndex = calId(pos.x, pos.y + 1, data.width)
       if(data.mapTable[tmpIndex] == 0) then
         room.south = tmpIndex
       end
 
       -- Left
 
-      tmpIndex = CalculateIndex(pos.x - 1, pos.y, data.width)
+      tmpIndex = calId(pos.x - 1, pos.y, data.width)
       if(data.mapTable[tmpIndex] == 0) then
         room.west = tmpIndex
       end

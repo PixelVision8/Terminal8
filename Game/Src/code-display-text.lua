@@ -19,6 +19,7 @@ function CreateTextDisplay(rect)
 
   data.rect = rect
   data.lines = {}
+  data.colorOffsets = {}
   data.currentLine = 1
   data.totalLines = 0
   data.textDelay = .02
@@ -90,14 +91,14 @@ end
 
 function DrawNextLine(data)
   local line = data.lines[data.currentLine]
-
+  local colorOffset = data.colorOffsets[data.currentLine]
+  -- print("offsets", dump(data.colorOffsets))
+  
   local char = line:sub(data.currentChar, data.currentChar)
 
-  DrawText(char, data.currentChar * 8, data.nextY, DrawMode.TilemapCache, "large", 15)
+  DrawText(char, data.currentChar * 8, data.nextY, DrawMode.TilemapCache, "large", colorOffset[data.currentChar])
 
   data.currentChar = data.currentChar + 1
-
-
 
   if(data.currentChar > #line) then
     data.currentChar = 0
@@ -142,22 +143,46 @@ function DisplayText(data, text, clear)
   if(clear == true) then
     ClearTextDisplay(data)
     data.lines = {}
+    data.colorOffsets = {}
     data.currentLine = 1
     data.nextY = data.rect.y
   end
 
   data.startLine = data.currentLine
 
-  -- We are going to render the message in a box as tiles. To do this, we need to wrap the
-  -- text, then split it into lines and draw each line.
-  local wrap = WordWrap(text, (data.rect.w / 8) - 2)
+  -- Before we can split the lines, we need to create the color map and replace the tokens since each one has additional characters that would throw off the wrapping logic
+  local newText, colors = colorizeText(text, 15)
+
+  -- We are going to render the message in a box as tiles. To do this, we need to wrap the text, then split it into lines and draw each line.
+  local wrap = WordWrap(newText, (data.rect.w / 8) - 2)
 
   -- Get the lines
   local newLines = SplitLines(wrap)
 
+  print("lines", dump(newLines))
+
+  local offset = 0
+
   -- Add the lines
   for i = 1, #newLines do
-    table.insert(data.lines, newLines[i])
+
+    -- Get the line
+    local line = newLines[i]
+
+    -- Add it to the lines table
+    table.insert(data.lines, line)
+
+    -- Since lua doesn't have a way to splice or get a range of values in an array, we need to do this manually
+    local colorOffsets = {}
+
+    for j = 1, #line do
+      table.insert(colorOffsets, colors[j + offset])
+    end
+
+    offset = offset + #line + 1-- +1 for the new line
+
+    table.insert(data.colorOffsets, colorOffsets)
+
   end
 
   -- Update the total lines

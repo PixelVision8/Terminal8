@@ -296,7 +296,7 @@ function ShowTerminal()
 
 end
 
-function Start()
+function Start(options)
 
   if(gameState.gameActive == true) then
     return
@@ -319,8 +319,32 @@ function Start()
   gameState.debug = false
   gameState.mapOpen = false
 
+  if(options ~= nil and tonumber(options[1]) ~= nil) then
+    gameState.seed = tonumber(options[1])
+    
+  else
+    gameState.seed = math.floor(os.time())
+  end
+
+  math.randomseed(gameState.seed)
+
+  print("Seed: " .. gameState.seed)
+
+
+  -- TODO testing cleaner map
+  -- local tmaz = TMaze:New(4,4)
+  -- tmaz:Blank()
+  -- tmaz:Generate()
+
+  -- local string = tmaz:Preview()
+
+  -- print("Tmaz", string)
+
+
+  -- random = math.random
+
   -- Create map
-  gameState.map = NewMap(3, 2)
+  gameState.map = NewMap(4, 3)
   DecorateRooms(gameState.map)
 
   -- This exposes the display text to any function referencing the game state
