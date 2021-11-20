@@ -4,7 +4,7 @@ Pixel Vision 8's core philosophy is to teach retro game development with streaml
 
 ## Quick Start Guide
 
-I've tried my best to make compiling, testing, and packaging as easy as possible. While you can learn more about this in the [docs](https://github.com/PixelVision8/PixelVision8/wik), here is the quickest way to build this game:
+I've tried my best to make compiling, testing, and packaging as easy as possible. While you can learn more about this in the [docs](https://github.com/PixelVision8/PixelVision8/wiki), here is the quickest way to build this game:
 
 > Before you get started, you are going to want to install [.Net 6](https://dotnet.microsoft.com/download/dotnet/6.0), [NodeJS](https://nodejs.org/en/download/), and an IDE like [Visual Studio Code](https://code.visualstudio.com/Download).
 
